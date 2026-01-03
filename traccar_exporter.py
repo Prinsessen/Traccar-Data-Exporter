@@ -15,6 +15,7 @@ import io
 import sys
 from tqdm import tqdm
 import getpass
+from math import radians, cos, sin, asin, sqrt
 
 
 class TraccarExporter:
@@ -337,6 +338,91 @@ class DataExporter:
         return zip_buffer.getvalue()
 
 
+def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Calculate the great circle distance between two points on Earth.
+    
+    Args:
+        lat1, lon1: Coordinates of first point
+        lat2, lon2: Coordinates of second point
+        
+    Returns:
+        Distance in kilometers
+    """
+    # Convert to radians
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    
+    # Haversine formula
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a))
+    
+    # Earth radius in kilometers
+    r = 6371
+    
+    return c * r
+
+
+def filter_ghost_jumps(positions: List[Dict], max_speed_kmh: float = 200.0) -> List[Dict]:
+    """Filter out GPS ghost jumps based on unrealistic speeds.
+    
+    Args:
+        positions: List of position dictionaries
+        max_speed_kmh: Maximum realistic speed in km/h (default 200 km/h)
+        
+    Returns:
+        Filtered list of positions without ghost jumps
+    """
+    if len(positions) <= 1:
+        return positions
+    
+    filtered = [positions[0]]  # Always keep the first position
+    removed_count = 0
+    
+    for i in range(1, len(positions)):
+        prev_pos = filtered[-1]
+        curr_pos = positions[i]
+        
+        # Get coordinates
+        prev_lat = prev_pos.get('latitude')
+        prev_lon = prev_pos.get('longitude')
+        curr_lat = curr_pos.get('latitude')
+        curr_lon = curr_pos.get('longitude')
+        
+        # Skip if coordinates missing
+        if None in [prev_lat, prev_lon, curr_lat, curr_lon]:
+            filtered.append(curr_pos)
+            continue
+        
+        # Calculate distance
+        distance_km = haversine_distance(prev_lat, prev_lon, curr_lat, curr_lon)
+        
+        # Calculate time difference
+        try:
+            prev_time = datetime.fromisoformat(prev_pos.get('fixTime', '').replace('Z', '+00:00'))
+            curr_time = datetime.fromisoformat(curr_pos.get('fixTime', '').replace('Z', '+00:00'))
+            time_diff_hours = (curr_time - prev_time).total_seconds() / 3600
+            
+            if time_diff_hours > 0:
+                speed_kmh = distance_km / time_diff_hours
+                
+                # If speed is unrealistic, it's likely a ghost jump
+                if speed_kmh <= max_speed_kmh:
+                    filtered.append(curr_pos)
+                else:
+                    removed_count += 1
+            else:
+                filtered.append(curr_pos)
+        except (ValueError, AttributeError):
+            # If time parsing fails, keep the point
+            filtered.append(curr_pos)
+    
+    if removed_count > 0:
+        print(f"🔧 Filtered out {removed_count} ghost jump(s) (speed > {max_speed_kmh} km/h)")
+    
+    return filtered
+
+
 def get_user_input() -> tuple:
     """Get server connection details from user.
     
@@ -488,6 +574,50 @@ def select_format() -> Optional[str]:
             return None
 
 
+def ask_ghost_jump_filter() -> Optional[float]:
+    """Ask user if they want to filter ghost jumps.
+    
+    Returns:
+        Max speed in km/h if filtering enabled, None if disabled
+    """
+    print("\n" + "="*60)
+    print("GHOST JUMP FILTERING")
+    print("="*60)
+    print("Filter out erroneous GPS points with unrealistic speeds?")
+    print("(Useful for removing GPS glitches/jumps)")
+    print("\n1. Yes - Filter jumps > 200 km/h (recommended for vehicles)")
+    print("2. Yes - Filter jumps > 500 km/h (for aircraft/fast vehicles)")
+    print("3. Yes - Custom speed threshold")
+    print("4. No - Keep all data points")
+    
+    while True:
+        try:
+            choice = input("\nSelect option (1-4): ").strip()
+            
+            if choice == '1':
+                return 200.0
+            elif choice == '2':
+                return 500.0
+            elif choice == '3':
+                while True:
+                    try:
+                        speed = input("Enter maximum speed in km/h: ").strip()
+                        max_speed = float(speed)
+                        if max_speed > 0:
+                            return max_speed
+                        else:
+                            print("Speed must be greater than 0")
+                    except ValueError:
+                        print("Please enter a valid number")
+            elif choice == '4':
+                return None
+            else:
+                print("Please enter a number between 1 and 4")
+        except KeyboardInterrupt:
+            print("\nOperation cancelled")
+            return None
+
+
 def main():
     """Main function to run the exporter."""
     try:
@@ -540,6 +670,13 @@ def main():
             sys.exit(0)
         
         print(f"✓ Retrieved {len(positions)} position records")
+        
+        # Ask about ghost jump filtering
+        max_speed = ask_ghost_jump_filter()
+        if max_speed is not None:
+            print(f"\n🔧 Applying ghost jump filter (max speed: {max_speed} km/h)...")
+            positions = filter_ghost_jumps(positions, max_speed)
+            print(f"✓ {len(positions)} position records after filtering")
         
         # Export data
         print(f"\nExporting data to {output_format.upper()} format...")

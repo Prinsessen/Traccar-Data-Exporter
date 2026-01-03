@@ -16,6 +16,7 @@ GitHub: [@Prinsessen](https://github.com/Prinsessen)
 - ⚠️ Comprehensive error handling
 - 🎯 Interactive device selection
 - 🌐 Compatible with latest Traccar API
+- 🔧 Ghost jump filtering - removes GPS glitches and unrealistic position jumps
 
 ## Supported Output Formats
 
@@ -55,6 +56,7 @@ The script will guide you through:
 2. **Device Selection** - Choose which device to export data from
 3. **Time Range** - Select the time period for data extraction
 4. **Output Format** - Choose your desired output format
+5. **Ghost Jump Filtering** - Optional: Filter out GPS glitches and unrealistic position jumps
 
 ### Example
 
@@ -95,16 +97,52 @@ OUTPUT FORMAT SELECTION
 
 Select output format (1-5): 1
 
+GHOST JUMP FILTERING
+============================================================
+Filter out erroneous GPS points with unrealistic speeds?
+(Useful for removing GPS glitches/jumps)
+
+1. Yes - Filter jumps > 200 km/h (recommended for vehicles)
+2. Yes - Filter jumps > 500 km/h (for aircraft/fast vehicles)
+3. Yes - Custom speed threshold
+4. No - Keep all data points
+
+Select option (1-4): 1
+
 ✓ Retrieved 1523 position records
-Converting to GPX: 100%|██████████| 1523/1523 [00:02<00:00, 612.45point/s]
+🔧 Applying ghost jump filter (max speed: 200.0 km/h)...
+🔧 Filtered out 3 ghost jump(s) (speed > 200.0 km/h)
+✓ 1520 position records after filtering
+Converting to GPX: 100%|██████████| 1520/1520 [00:02<00:00, 612.45point/s]
 
 ============================================================
 ✓ SUCCESS!
 ============================================================
 File saved: Vehicle_1_20260102_20260103.gpx
-Records exported: 1523
+Records exported: 1520
 ============================================================
 ```
+
+## Ghost Jump Filtering
+
+The script includes a powerful feature to filter out GPS "ghost jumps" - erroneous data points where the device appears to teleport large distances in unrealistic time frames. This is common with:
+- Poor GPS signal
+- GPS drift
+- Sensor errors
+- Data transmission issues
+
+**How it works:**
+1. Calculates the speed between consecutive GPS points using the Haversine formula
+2. Removes points where the calculated speed exceeds your threshold
+3. Keeps the previous valid point and continues from there
+
+**Recommended thresholds:**
+- **200 km/h** - Good for cars, trucks, and most vehicles
+- **500 km/h** - Suitable for aircraft and high-speed vehicles  
+- **Custom** - Set your own threshold based on your tracking needs
+- **Disabled** - Keep all data points unfiltered
+
+**Example:** If your device jumps from New York to London in 5 minutes (clearly impossible), that point will be filtered out.
 
 ## Output File Naming
 
@@ -184,7 +222,13 @@ Response status: 200
 
 ## Changelog
 
-### v1.3.0 (2026-01-03) ✅ Current - Fully Working
+### v1.4.0 (2026-01-03) ✨ New Feature
+- **Added:** Ghost jump filtering to remove GPS glitches and unrealistic position jumps
+- **Added:** Haversine distance calculation for accurate GPS point spacing
+- **Added:** Interactive filtering options (200 km/h, 500 km/h, custom, or disabled)
+- **Improved:** Better data quality control with configurable speed thresholds
+
+### v1.3.0 (2026-01-03) ✅ Fully Working
 - **Fixed:** Authentication now uses form-encoded credentials instead of JSON (resolves HTTP 415 error)
 - **Fixed:** Endpoint fallback logic - tries both `/api/session` and `/api/session/` automatically
 - **Improved:** Better endpoint discovery with smart retry logic
