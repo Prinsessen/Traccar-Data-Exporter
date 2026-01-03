@@ -493,11 +493,13 @@ def get_time_range() -> Optional[tuple]:
     print("2. Last 24 hours")
     print("3. Last 7 days")
     print("4. Last 30 days")
-    print("5. Custom range")
+    print("5. Current year")
+    print("6. Last year")
+    print("7. Custom range")
     
     while True:
         try:
-            choice = input("\nSelect time range (1-5): ").strip()
+            choice = input("\nSelect time range (1-7): ").strip()
             
             end_time = datetime.utcnow()
             
@@ -514,6 +516,17 @@ def get_time_range() -> Optional[tuple]:
                 start_time = end_time - timedelta(days=30)
                 break
             elif choice == '5':
+                # Current year from Jan 1 to now
+                current_year = end_time.year
+                start_time = datetime(current_year, 1, 1, 0, 0, 0)
+                break
+            elif choice == '6':
+                # Last year from Jan 1 to Dec 31
+                last_year = end_time.year - 1
+                start_time = datetime(last_year, 1, 1, 0, 0, 0)
+                end_time = datetime(last_year, 12, 31, 23, 59, 59)
+                break
+            elif choice == '7':
                 print("\nEnter dates in format: YYYY-MM-DD HH:MM")
                 start_str = input("Start date and time: ").strip()
                 end_str = input("End date and time: ").strip()
@@ -530,7 +543,7 @@ def get_time_range() -> Optional[tuple]:
                     print(f"Invalid date format: {e}")
                     continue
             else:
-                print("Please enter a number between 1 and 5")
+                print("Please enter a number between 1 and 7")
         except KeyboardInterrupt:
             print("\nOperation cancelled")
             return None

@@ -11,7 +11,7 @@ GitHub: [@Prinsessen](https://github.com/Prinsessen)
 
 - 🔐 Secure authentication with Traccar server
 - 📊 Export to multiple formats: GPX, KML, KMZ, GeoJSON, CSV
-- ⏱️ Flexible time range selection (last hour, 24h, 7d, 30d, or custom)
+- ⏱️ Flexible time range selection (last hour, 24h, 7d, 30d, current year, last year, or custom)
 - 📈 Progress bars for data processing
 - ⚠️ Comprehensive error handling
 - 🎯 Interactive device selection
@@ -83,9 +83,11 @@ TIME RANGE SELECTION
 2. Last 24 hours
 3. Last 7 days
 4. Last 30 days
-5. Custom range
+5. Current year
+6. Last year
+7. Custom range
 
-Select time range (1-5): 2
+Select time range (1-7): 2
 
 OUTPUT FORMAT SELECTION
 ============================================================
@@ -221,6 +223,11 @@ Response status: 200
 ```
 
 ## Changelog
+
+### v1.5.0 (2026-01-03) 📅 Time Range Update
+- **Added:** "Current year" option - exports all data from January 1st to now
+- **Added:** "Last year" option - exports complete previous year (Jan 1 - Dec 31)
+- **Improved:** More convenient time range selections for annual data exports
 
 ### v1.4.0 (2026-01-03) ✨ New Feature
 - **Added:** Ghost jump filtering to remove GPS glitches and unrealistic position jumps
