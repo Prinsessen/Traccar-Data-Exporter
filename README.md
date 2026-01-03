@@ -127,16 +127,19 @@ The script includes comprehensive error handling for:
 
 ## Traccar API Compatibility
 
-This script is designed to work with the latest Traccar API (v5.x and above). It uses the following endpoints:
-- `/api/session` - Authentication
+This script is designed to work with Traccar API (v5.x and above). It uses the following endpoints:
+- `/api/session` - Authentication (POST with JSON credentials)
 - `/api/devices` - Device list
 - `/api/positions` - Position data
+
+**Authentication Method:** The script uses POST requests with JSON credentials sent in the request body for secure authentication with Traccar servers.
 
 ## Security Notes
 
 - Never commit your credentials to version control
 - Use environment variables for production deployments
 - Consider using Traccar API tokens for enhanced security
+- The script does not store credentials; they are only used for the current session
 
 ## Troubleshooting
 
@@ -144,7 +147,10 @@ This script is designed to work with the latest Traccar API (v5.x and above). It
 
 **Problem:** `HTTP 404 Not Found` error on connection
 
-**Solution:** Ensure the server URL is correct and uses the format `https://your-server.com` (without trailing slash). The script correctly appends `/api/session/` to connect to the API endpoint.
+**Solution:** Ensure:
+1. Your server URL format is correct: `https://your-server.com` (without trailing slash)
+2. Your email and password are correct
+3. Your Traccar server is accessible from your network
 
 **Example:**
 - ✓ Correct: `https://traccar.example.com`
@@ -152,17 +158,21 @@ This script is designed to work with the latest Traccar API (v5.x and above). It
 
 ### Common Issues
 
-1. **Invalid Credentials** - Double-check your email and password
+1. **Invalid Credentials** - Double-check your email and password are correct for your Traccar account
 2. **Server Unreachable** - Verify the server URL and network connectivity
 3. **No Devices Found** - Ensure you have at least one device configured in Traccar
 4. **No Position Data** - The selected time range may not contain any tracking data
 
 ## Changelog
 
-### v1.1.0 (2026-01-03)
-- **Fixed:** API endpoint URL for session authentication (added trailing slash)
+### v1.2.0 (2026-01-03)
+- **Fixed:** Authentication method changed from HTTP Basic Auth to POST with JSON credentials
+- **Improved:** More secure credential handling
+- **Updated:** Dependencies and documentation
+
+### v1.1.0
+- **Fixed:** API endpoint URL for session authentication
 - **Improved:** Better error messages for connection troubleshooting
-- **Updated:** Documentation with common issues and solutions
 
 ### v1.0.0
 - Initial release with GPX, KML, KMZ, GeoJSON, and CSV export support
