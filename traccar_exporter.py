@@ -35,7 +35,6 @@ class TraccarExporter:
         self.session.headers.update({'Content-Type': 'application/json'})
         self.devices = []
         self.authenticated = False
-        
     def test_connection(self) -> bool:
         """Test connection to Traccar server.
         
@@ -43,11 +42,31 @@ class TraccarExporter:
             True if connection successful, False otherwise
         """
         try:
+            # Try with trailing slash first (some Traccar versions require it)
+            url_with_slash = f"{self.server_url}/api/session/"
+            print(f"Attempting connection to: {url_with_slash}")
+            
             response = self.session.post(
-                f"{self.server_url}/api/session",
+                url_with_slash,
                 json={'email': self.email, 'password': self.password},
-                verify=True
+                verify=False,
+                allow_redirects=False,
+                timeout=10
             )
+            
+            # If we get 404, try without trailing slash
+            if response.status_code == 404:
+                url_no_slash = f"{self.server_url}/api/session"
+                print(f"Retrying without trailing slash: {url_no_slash}")
+                
+                response = self.session.post(
+                    url_no_slash,
+                    json={'email': self.email, 'password': self.password},
+                    verify=False,
+                    allow_redirects=False,
+                    timeout=10
+                )
+            
             if response.status_code == 200:
                 self.authenticated = True
                 print("✓ Successfully connected to Traccar server")
