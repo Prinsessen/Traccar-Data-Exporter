@@ -115,77 +115,48 @@ OUTPUT FORMAT SELECTION
 
 Select output format (1-5): 1
 
-GPS ACCURACY FILTERING
-============================================================
-Filter out GPS points with poor accuracy (weak fix)?
-This removes points with low satellite visibility or weak signal.
+✓ Selected format: GPX
 
-1. Yes - Remove points with accuracy > 50m (recommended)
-2. Yes - Remove points with accuracy > 30m (stricter)
-3. Yes - Remove points with accuracy > 20m (very strict)
-4. Custom accuracy threshold
-5. No - Keep all points
-
-Select option (1-5): 1
-
+Fetching position data from 2024-01-01 00:00:00 to 2024-12-31 23:59:59...
 ✓ Retrieved 1523 position records
-🔧 Applying GPS accuracy filter (max accuracy: 50.0 m)...
-🔧 Filtered out 12 point(s) with poor GPS accuracy (accuracy > 50.0 m)
-✓ 1511 position records after accuracy filtering
 
-GHOST JUMP FILTERING
+FILTER PRESET
 ============================================================
-Filter out erroneous GPS points with unrealistic speeds?
-(Useful for removing GPS glitches/jumps)
+Choose a filtering preset or configure manually:
 
-1. Yes - Filter jumps > 200 km/h (recommended for vehicles)
-2. Yes - Filter jumps > 500 km/h (for aircraft/fast vehicles)
-3. Yes - Custom speed threshold
-4. No - Keep all data points
+1. Ultra Clean (Aggressive) - Maximum noise removal for very noisy data
+   • GPS Accuracy: 20m | Ghost Jumps: 100 km/h
+   • Trajectory Outliers: 30m | Stationary: 10m | Time: 15s
 
-Select option (1-4): 1
+2. Clean (Balanced) - Good balance for most use cases
+   • GPS Accuracy: 30m | Ghost Jumps: 150 km/h
+   • Trajectory Outliers: 50m | Stationary: 5m | Time: 10s
 
-✓ Retrieved 1523 position records
-🔧 Applying ghost jump filter (max speed: 200.0 km/h)...
-🔧 Filtered out 3 ghost jump(s) (speed > 200.0 km/h)
-✓ 1520 position records after filtering
+3. Light - Minimal filtering, keeps most data
+   • GPS Accuracy: 50m | Ghost Jumps: 200 km/h
+   • No trajectory/stationary/time filtering
 
-DRIFT NOISE FILTERING
-============================================================
-Filter low-speed jitter (e.g., while GPS fix is acquired)?
+4. Custom - Configure each filter individually
 
-1. Yes - distance <= 50m AND speed <= 10 km/h
-2. Yes - distance <= 30m AND speed <= 8 km/h
-3. Custom thresholds
-4. No - Keep all low-speed points
+5. No filtering - Keep all data (not recommended)
 
-Select option (1-4): 1
+Select option (1-5): 2
 
-🔧 Applying drift filter (speed <= 10.0 km/h, distance <= 50 m)...
-🔧 Filtered out 4 low-speed drift point(s) (distance <= 50 m and speed <= 10.0 km/h)
-✓ 1516 position records after drift filtering
+⚖️ Applying CLEAN preset (balanced filtering)...
+✓ 1511 records after GPS accuracy filter (30m)
+✓ 1508 records after ghost jump filter (150 km/h)
+✓ 1498 records after trajectory outlier filter (50m)
+✓ 1492 records after stationary removal (5m)
+✓ 1487 records after time interval filter (10s)
 
-SMALL JITTER FILTERING
-============================================================
-Remove tiny low-speed jumps (e.g., stop/start jitter)?
-
-1. Yes - distance <= 15m AND speed <= 15 km/h (recommended)
-2. Yes - distance <= 10m AND speed <= 12 km/h (stricter)
-3. Custom thresholds
-4. No - Keep these points
-
-Select option (1-4): 1
-
-🔧 Applying small jitter filter (speed <= 15.0 km/h, distance <= 15 m)...
-🔧 Filtered out 6 small-jitter point(s) (distance <= 15 m and speed <= 15.0 km/h)
-✓ 1510 position records after jitter filtering
-Converting to GPX: 100%|██████████| 1510/1510 [00:02<00:00, 612.45point/s]
+Exporting data to GPX format...
+Converting to GPX: 100%|██████████| 1487/1487 [00:02<00:00, 612.45point/s]
 
 ============================================================
 ✓ SUCCESS!
 ============================================================
-File saved: Vehicle_1_20260102_20260103.gpx
-Records exported: 1520
+File saved: Vehicle_1_20240101_20241231.gpx
+Records exported: 1487
 ============================================================
 ```
 
