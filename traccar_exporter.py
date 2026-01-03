@@ -32,8 +32,9 @@ class TraccarExporter:
         self.email = email
         self.password = password
         self.session = requests.Session()
-        self.session.auth = (email, password)
+        self.session.headers.update({'Content-Type': 'application/json'})
         self.devices = []
+        self.authenticated = False
         
     def test_connection(self) -> bool:
         """Test connection to Traccar server.
@@ -42,8 +43,13 @@ class TraccarExporter:
             True if connection successful, False otherwise
         """
         try:
-            response = self.session.get(f"{self.server_url}/api/session/")
+            response = self.session.post(
+                f"{self.server_url}/api/session",
+                json={'email': self.email, 'password': self.password},
+                verify=True
+            )
             if response.status_code == 200:
+                self.authenticated = True
                 print("✓ Successfully connected to Traccar server")
                 return True
             else:
