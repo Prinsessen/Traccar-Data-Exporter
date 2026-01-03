@@ -42,7 +42,7 @@ class TraccarExporter:
             True if connection successful, False otherwise
         """
         try:
-            response = self.session.get(f"{self.server_url}/api/session")
+            response = self.session.get(f"{self.server_url}/api/session/")
             if response.status_code == 200:
                 print("✓ Successfully connected to Traccar server")
                 return True

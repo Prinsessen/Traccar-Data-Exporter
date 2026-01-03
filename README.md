@@ -138,6 +138,35 @@ This script is designed to work with the latest Traccar API (v5.x and above). It
 - Use environment variables for production deployments
 - Consider using Traccar API tokens for enhanced security
 
+## Troubleshooting
+
+### Connection Issues
+
+**Problem:** `HTTP 404 Not Found` error on connection
+
+**Solution:** Ensure the server URL is correct and uses the format `https://your-server.com` (without trailing slash). The script correctly appends `/api/session/` to connect to the API endpoint.
+
+**Example:**
+- ✓ Correct: `https://traccar.example.com`
+- ✗ Incorrect: `https://traccar.example.com/`
+
+### Common Issues
+
+1. **Invalid Credentials** - Double-check your email and password
+2. **Server Unreachable** - Verify the server URL and network connectivity
+3. **No Devices Found** - Ensure you have at least one device configured in Traccar
+4. **No Position Data** - The selected time range may not contain any tracking data
+
+## Changelog
+
+### v1.1.0 (2026-01-03)
+- **Fixed:** API endpoint URL for session authentication (added trailing slash)
+- **Improved:** Better error messages for connection troubleshooting
+- **Updated:** Documentation with common issues and solutions
+
+### v1.0.0
+- Initial release with GPX, KML, KMZ, GeoJSON, and CSV export support
+
 ## License
 
 MIT License - See LICENSE file for details
