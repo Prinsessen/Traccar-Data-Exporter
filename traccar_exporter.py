@@ -41,36 +41,40 @@ class TraccarExporter:
             True if connection successful, False otherwise
         """
         try:
-            # Traccar expects form-encoded credentials, not JSON
+            # Traccar expects form-encoded credentials
             credentials = {
                 'email': self.email,
                 'password': self.password
             }
             
-            # Try with trailing slash first
-            url_with_slash = f"{self.server_url}/api/session/"
-            print(f"Attempting connection to: {url_with_slash}")
+            # Try without trailing slash first (standard REST convention)
+            url_no_slash = f"{self.server_url}/api/session"
+            print(f"Attempting connection to: {url_no_slash}")
+            print(f"Sending credentials: email={self.email}")
             
             response = self.session.post(
-                url_with_slash,
-                data=credentials,  # Use form-encoded data instead of JSON
+                url_no_slash,
+                data=credentials,  # Use form-encoded data
                 verify=False,
                 allow_redirects=False,
                 timeout=10
             )
             
-            # If we get 404 or 415, try without trailing slash
+            print(f"Response status: {response.status_code}")
+            
+            # If we get 404 or 415, try with trailing slash
             if response.status_code in [404, 415]:
-                url_no_slash = f"{self.server_url}/api/session"
-                print(f"Retrying without trailing slash: {url_no_slash}")
+                url_with_slash = f"{self.server_url}/api/session/"
+                print(f"First attempt failed, retrying with trailing slash: {url_with_slash}")
                 
                 response = self.session.post(
-                    url_no_slash,
+                    url_with_slash,
                     data=credentials,  # Use form-encoded data
                     verify=False,
                     allow_redirects=False,
                     timeout=10
                 )
+                print(f"Response status: {response.status_code}")
             
             if response.status_code == 200:
                 self.authenticated = True
